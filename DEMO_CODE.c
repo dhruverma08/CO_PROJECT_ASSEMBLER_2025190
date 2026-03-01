@@ -198,9 +198,6 @@ def encode_B_type(parts):
     funct3 = entry["funct3"]
     opcode = entry["opcode"]
 
-    rs1_bin = reg_to_bin(rs1)
-    rs2_bin = reg_to_bin(rs2)
-
     imm_bin = imm_to_bin(imm, 13)
 
     return imm_bin[0] + imm_bin[2:8] + registers[rs2] + registers[rs1] + funct3 + imm_bin[8:12] + imm_bin[1] + opcode 
