@@ -113,3 +113,22 @@ B_type_table = {
         "opcode": "1100011"
     }
 }
+
+#u-type imm[31:12] | rd | opcode
+U_type_table = {
+
+    "lui": {
+        "opcode": "0110111"
+    },
+
+    "auipc": {
+        "opcode": "0010111"
+    }
+}
+#J_type  imm[20|10:1|11|19:12] | rd | opcode
+J_type_table = {
+
+    "jal": {
+        "opcode": "1101111"
+    }
+}
