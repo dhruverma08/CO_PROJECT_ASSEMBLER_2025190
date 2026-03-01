@@ -144,6 +144,21 @@ registers = {
     "t4": "11101", "t5": "11110", "t6": "11111"
 }
 
+def immediate(value, bits):
+    value = int(value)
+
+    # range checking (optional but recommended)
+    min_val = -(1 << (bits - 1))
+    max_val = (1 << (bits - 1)) - 1
+    if value < min_val or value > max_val:
+        raise ValueError(f"Immediate out of range for {bits} bits")
+
+    # two's complement for negative numbers
+    if value < 0:
+        value = (1 << bits) + value
+
+    return format(value, f"0{bits}b")
+    
 def encode_R_type(parts):
     instr, rd, rs1, rs2 = parts
     entry = R_type_table[instr]
@@ -169,7 +184,7 @@ def encode_I_type(parts):
         rd, rs1, imm = parts[1], parts[2], parts[3]
         offset = imm
 
-    imm_bin = imm_to_bin(offset, 12)
+    imm_bin = immediate(offset, 12)
 
     return imm_bin + registers[rs1] + funct3 + registers[rd] + opcode
 
@@ -184,7 +199,7 @@ def encode_S_type(parts):
     offset, rs1 = parts[2].split("(")
     rs1 = rs1.replace(")", "")
 
-    imm_bin = imm_to_bin(offset, 12)
+    imm_bin = immediate(offset, 12)
 
     imm_11_5 = imm_bin[:7]
     imm_4_0 = imm_bin[7:]
@@ -198,7 +213,7 @@ def encode_B_type(parts):
     funct3 = entry["funct3"]
     opcode = entry["opcode"]
 
-    imm_bin = imm_to_bin(imm, 13)
+    imm_bin = immediate(imm, 13)
 
     return imm_bin[0] + imm_bin[2:8] + registers[rs2] + registers[rs1] + funct3 + imm_bin[8:12] + imm_bin[1] + opcode 
 
@@ -208,7 +223,7 @@ def encode_U_type(parts):
 
     opcode = entry["opcode"]
 
-    imm_bin = imm_to_bin(imm, 20)
+    imm_bin = immediate(imm, 20)
 
     return imm_bin + registers[rd] + opcode
 
@@ -218,7 +233,7 @@ def encode_J_type(parts):
 
     opcode = entry["opcode"]
 
-    imm_bin = imm_to_bin(imm, 21)
+    imm_bin = immediate(imm, 21)
 
     return imm_bin[0] + imm_bin[10:20] + imm_bin[9] + imm_bin[1:9] + registers[rd] + opcode 
 
