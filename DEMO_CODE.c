@@ -1,8 +1,8 @@
 import sys
 final = []
     
-#R-type  funct7 | rs2 | rs1 | funct3 | rd | opcode
-R_opcode="0110011"
+#R-type funct7 | rs2 | rs1 | funct3 | rd | opcode
+R_opcode = "0110011"
     
 R_type_table = {
     "add": {
@@ -51,7 +51,9 @@ R_type_table = {
         "opcode": "0110011"
     }
 }
-# i type imm[11:0] | rs1 | funct3 | rd | opcode
+
+# I type imm[11:0] | rs1 | funct3 | rd | opcode
+
 I_type_table = {
     "addi": {
         "funct3": "000",
@@ -70,6 +72,7 @@ I_type_table = {
         "opcode": "1100111"
     }
 }
+
 # s type imm[11:5] | rs2 | rs1 | funct3 | imm[4:0] | opcode
 S_type_table = {
     "sw": {
