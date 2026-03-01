@@ -144,21 +144,82 @@ registers = {
     "t4": "11101", "t5": "11110", "t6": "11111"
 }
 
-def immediate(value, bits):
-    value = int(value)
+def immediate(x, bits):
 
-    # range checking (optional but recommended)
-    min_val = -(1 << (bits - 1))
-    max_val = (1 << (bits - 1)) - 1
-    if value < min_val or value > max_val:
-        raise ValueError(f"Immediate out of range for {bits} bits")
+    if bits <= 0:
+        return "error"
 
-    # two's complement for negative numbers
-    if value < 0:
-        value = (1 << bits) + value
+    x = x.strip()
 
-    return format(value, f"0{bits}b")
-    
+    # -------- check sign --------
+    is_negative = False
+    if x[0] == "-":
+        is_negative = True
+        x = x[1:]   # remove '-'
+
+    if x == "" or not x.isdigit():
+        return "error"
+
+    y = int(x)
+
+    # -------- decimal → binary (INTEGER method) --------
+    binary_int = 0
+    place = 1
+
+    if y == 0:
+        binary_int = 0
+    else:
+        while y != 0:
+            remainder = y % 2
+            binary_int = remainder * place + binary_int
+            place = place * 10
+            y = y // 2
+
+    # convert integer binary → string
+    binary = str(binary_int)
+
+    # -------- overflow check --------
+    if len(binary) > bits:
+        return "error"
+
+    # -------- extend bits --------
+    while len(binary) < bits:
+        binary = "0" + binary
+
+    # -------- positive number --------
+    if not is_negative:
+        return binary
+
+    # -------- negative number --------
+    # one's complement
+    flipped = ""
+    i = 0
+    while i < bits:
+        if binary[i] == "0":
+            flipped += "1"
+        else:
+            flipped += "0"
+        i += 1
+
+    # add 1
+    result = list(flipped)
+    carry = 1
+    i = bits - 1
+
+    while i >= 0 and carry == 1:
+        if result[i] == "0":
+            result[i] = "1"
+            carry = 0
+        else:
+            result[i] = "0"
+        i -= 1
+
+    # build final string using for loop
+    final_string = ""
+    for bit in result:
+        final_string = final_string + bit
+
+    return final_string
 def encode_R_type(parts):
     instr, rd, rs1, rs2 = parts
     entry = R_type_table[instr]
@@ -283,3 +344,41 @@ def main_encoder(line):
             return encode_J_type(parts)
         case _:
             raise ValueError("Invalid instruction")
+
+def main():
+
+    # take file names from command line
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+
+    # open files
+    fin = open(input_file, "r")
+    fout = open(output_file, "w")
+
+    line_number = 1
+
+    for line in fin:
+        line = line.strip()
+
+        # skip empty lines
+        if line == "":
+            continue
+
+        try:
+            binary = main_encoder(line)
+            fout.write(binary + "\n")
+
+        except:
+            print("Error at line", line_number)
+            fin.close()
+            fout.close()
+            return
+
+        line_number += 1
+
+    fin.close()
+    fout.close()
+
+
+if __name__ == "__main__":
+    main()
