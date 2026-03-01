@@ -51,3 +51,62 @@ R_type_table = {
         "opcode": "0110011"
     }
 }
+# i type imm[11:0] | rs1 | funct3 | rd | opcode
+I_type_table = {
+    "addi": {
+        "funct3": "000",
+        "opcode": "0010011"
+    },
+    "sltiu": {
+        "funct3": "011",
+        "opcode": "0010011"
+    },
+    "lw": {
+        "funct3": "010",
+        "opcode": "0000011"
+    },
+    "jalr": {
+        "funct3": "000",
+        "opcode": "1100111"
+    }
+}
+# s type imm[11:5] | rs2 | rs1 | funct3 | imm[4:0] | opcode
+S_type_table = {
+    "sw": {
+        "funct3": "010",
+        "opcode": "0100011"
+    }
+}
+# b type imm[12|10:5] | rs2 | rs1 | funct3 | imm[4:1|11] | opcode
+B_type_table = {
+
+    "beq": {
+        "funct3": "000",
+        "opcode": "1100011"
+    },
+
+    "bne": {
+        "funct3": "001",
+        "opcode": "1100011"
+    },
+
+    "blt": {
+        "funct3": "100",
+        "opcode": "1100011"
+    },
+
+    "bge": {
+        "funct3": "101",
+        "opcode": "1100011"
+    },
+
+    "bltu": {
+        "funct3": "110",
+        "opcode": "1100011"
+    },
+
+    "bgeu": {
+        "funct3": "111",
+        "opcode": "1100011"
+    }
+}
