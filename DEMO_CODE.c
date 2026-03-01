@@ -133,3 +133,51 @@ J_type_table = {
         "opcode": "1101111"
     }
 }
+
+
+def get_instruction_type(instr):
+    
+    instr = instr.lower()
+
+    if instr in R_type_table:
+        return 0      # R-type
+
+    elif instr in I_type_table:
+        return 1      # I-type
+
+    elif instr in S_type_table:
+        return 2      # S-type
+
+    elif instr in B_type_table:
+        return 3      # B-type
+
+    elif instr in U_type_table:
+        return 4      # U-type
+
+    elif instr in J_type_table:
+        return 5      # J-type
+
+    else:
+        return -1     # invalid instruction
+
+    
+def main_encoder(line):
+
+    parts = line.replace(",", " ").split()
+    instr = parts[0]
+    inst_type = get_instruction_type(instr)
+    match inst_type:
+        case 0:
+            print("R-type encoder called")
+        case 1:
+            print("I-type encoder called")
+        case 2:
+            print("S-type encoder called")
+        case 3:
+            print("B-type encoder called")          
+        case 4:
+            print("U-type encoder called")
+        case 5:
+            print("J-type encoder called")
+        case _:
+            print("Invalid instruction")
