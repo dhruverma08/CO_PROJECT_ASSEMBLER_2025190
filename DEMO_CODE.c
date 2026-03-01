@@ -134,23 +134,96 @@ J_type_table = {
     }
 }
 
-# Register name → register number
-REGISTER_TABLE = {
-    "zero": 0,
-    "ra": 1,
-    "sp": 2,
-    "gp": 3,
-    "tp": 4,
-    "t0": 5, "t1": 6, "t2": 7,
-    "s0": 8, "fp": 8, "s1": 9,
-    "a0": 10, "a1": 11, "a2": 12, "a3": 13,
-    "a4": 14, "a5": 15, "a6": 16, "a7": 17,
-    "s2": 18, "s3": 19, "s4": 20, "s5": 21,
-    "s6": 22, "s7": 23, "s8": 24, "s9": 25,
-    "s10": 26, "s11": 27,
-    "t3": 28, "t4": 29, "t5": 30, "t6": 31
+registers = {
+    "zero": "00000", "ra": "00001", "sp": "00010", "gp": "00011", "tp": "00100",
+    "t0": "00101", "t1": "00110", "t2": "00111", "s0": "01000", "fp": "01000",
+    "s1": "01001", "a0": "01010", "a1": "01011", "a2": "01100", "a3": "01101",
+    "a4": "01110", "a5": "01111", "a6": "10000", "a7": "10001", "s2": "10010",
+    "s3": "10011", "s4": "10100", "s5": "10101", "s6": "10110", "s7": "10111",
+    "s8": "11000", "s9": "11001", "s10": "11010", "s11": "11011", "t3": "11100",
+    "t4": "11101", "t5": "11110", "t6": "11111"
 }
 
+def encode_R_type(parts):
+    instr, rd, rs1, rs2 = parts
+    entry = R_type_table[instr]
+
+    funct7 = entry["funct7"]
+    funct3 = entry["funct3"]
+    opcode = entry["opcode"]
+
+    return funct7 + registers[rs2] + registers[rs1] + funct3 + registers[rd] + opcode
+
+def encode_I_type(parts):
+    instr = parts[0]
+    entry = I_type_table[instr]
+
+    funct3 = entry["funct3"]
+    opcode = entry["opcode"]
+
+    if instr == "lw":
+        rd = parts[1]
+        offset, rs1 = parts[2].split("(")
+        rs1 = rs1.replace(")", "")
+    else:
+        rd, rs1, imm = parts[1], parts[2], parts[3]
+        offset = imm
+
+    imm_bin = imm_to_bin(offset, 12)
+
+    return imm_bin + registers[rs1] + funct3 + registers[rd] + opcode
+
+def encode_S_type(parts):
+    instr = parts[0]
+    entry = S_type_table[instr]
+
+    funct3 = entry["funct3"]
+    opcode = entry["opcode"]
+
+    rs2 = parts[1]
+    offset, rs1 = parts[2].split("(")
+    rs1 = rs1.replace(")", "")
+
+    imm_bin = imm_to_bin(offset, 12)
+
+    imm_11_5 = imm_bin[:7]
+    imm_4_0 = imm_bin[7:]
+
+    return imm_11_5 + registers[rs2] + registers[rs1] + funct3 + imm_4_0 + opcode
+
+def encode_B_type(parts):
+    instr, rs1, rs2, imm = parts
+    entry = B_type_table[instr]
+
+    funct3 = entry["funct3"]
+    opcode = entry["opcode"]
+
+    rs1_bin = reg_to_bin(rs1)
+    rs2_bin = reg_to_bin(rs2)
+
+    imm_bin = imm_to_bin(imm, 13)
+
+    return imm_bin[0] + imm_bin[2:8] + registers[rs2] + registers[rs1] + funct3 + imm_bin[8:12] + imm_bin[1] + opcode 
+
+def encode_U_type(parts):
+    instr, rd, imm = parts
+    entry = U_type_table[instr]
+
+    opcode = entry["opcode"]
+
+    imm_bin = imm_to_bin(imm, 20)
+
+    return imm_bin + registers[rd] + opcode
+
+def encode_J_type(parts):
+    instr, rd, imm = parts
+    entry = J_type_table[instr]
+
+    opcode = entry["opcode"]
+
+    imm_bin = imm_to_bin(imm, 21)
+
+    return imm_bin[0] + imm_bin[10:20] + imm_bin[9] + imm_bin[1:9] + registers[rd] + opcode 
 
 def get_instruction_type(instr):
     
@@ -179,22 +252,22 @@ def get_instruction_type(instr):
 
     
 def main_encoder(line):
-
     parts = line.replace(",", " ").split()
     instr = parts[0]
     inst_type = get_instruction_type(instr)
+
     match inst_type:
         case 0:
-            print("R-type encoder called")
+            return encode_R_type(parts)
         case 1:
-            print("I-type encoder called")
+            return encode_I_type(parts)
         case 2:
-            print("S-type encoder called")
+            return encode_S_type(parts)
         case 3:
-            print("B-type encoder called")          
+            return encode_B_type(parts)
         case 4:
-            print("U-type encoder called")
+            return encode_U_type(parts)
         case 5:
-            print("J-type encoder called")
+            return encode_J_type(parts)
         case _:
-            print("Invalid instruction")
+            raise ValueError("Invalid instruction")
