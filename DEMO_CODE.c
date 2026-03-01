@@ -1,7 +1,9 @@
 import sys
 final = []
+    
 #R-type  funct7 | rs2 | rs1 | funct3 | rd | opcode
 R_opcode="0110011"
+    
 R_type_table = {
     "add": {
         "funct7": "0000000",
