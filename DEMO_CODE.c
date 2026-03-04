@@ -1,5 +1,4 @@
 import sys
-final = []
     
 #R-type funct7 | rs2 | rs1 | funct3 | rd | opcode
     
@@ -151,7 +150,7 @@ def immediate(x, bits):
 
     x = x.strip()
 
-    # -------- check sign --------
+    # check sign
     is_negative = False
     if x[0] == "-":
         is_negative = True
@@ -162,7 +161,7 @@ def immediate(x, bits):
 
     y = int(x)
 
-    # -------- decimal → binary (INTEGER method) --------
+    # decimal→binary
     binary_int = 0
     place = 1
 
@@ -175,23 +174,23 @@ def immediate(x, bits):
             place = place * 10
             y = y // 2
 
-    # convert integer binary → string
+    # integer binary→string
     binary = str(binary_int)
 
-    # -------- overflow check --------
+    # check for overflow
     if len(binary) > bits:
         return "error"
 
-    # -------- extend bits --------
+    # extend bits
     while len(binary) < bits:
         binary = "0" + binary
 
-    # -------- positive number --------
+    # positive number
     if not is_negative:
         return binary
 
-    # -------- negative number --------
-    # one's complement
+    # negative number
+    #one's complement
     flipped = ""
     i = 0
     while i < bits:
@@ -220,6 +219,7 @@ def immediate(x, bits):
         final_string = final_string + bit
 
     return final_string
+
 def encode_R_type(parts):
     instr, rd, rs1, rs2 = parts
     entry = R_type_table[instr]
@@ -380,5 +380,4 @@ def main():
     fout.close()
 
 
-if __name__ == "__main__":
-    main()
+main()
