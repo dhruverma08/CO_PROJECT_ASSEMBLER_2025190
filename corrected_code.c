@@ -173,7 +173,7 @@ def main_encoder(line):
         case 5: return encode_J_type(parts)
         case _: raise ValueError(f"Invalid instruction mnemonic: {parts[0]}")
 
-
+global pc
 pc = 0
 label = {}
 all_instrs = []
