@@ -1,5 +1,3 @@
-import sys
-    
 #R-type funct7 | rs2 | rs1 | funct3 | rd | opcode
     
 R_type_table = {
@@ -274,7 +272,11 @@ def encode_B_type(parts):
     funct3 = entry["funct3"]
     opcode = entry["opcode"]
 
-    imm_bin = immediate(imm, 13)
+    if imm in label:
+        offset = label[imm] - pc
+    else:
+        offset = int(imm)
+    imm_bin = immediate(str(offset), 13)
 
     return imm_bin[0] + imm_bin[2:8] + registers[rs2] + registers[rs1] + funct3 + imm_bin[8:12] + imm_bin[1] + opcode 
 
@@ -294,7 +296,11 @@ def encode_J_type(parts):
 
     opcode = entry["opcode"]
 
-    imm_bin = immediate(imm, 21)
+    if imm in label:
+        offset = label[imm] - pc
+    else:
+        offset = int(imm)
+    imm_bin = immediate(str(offset), 21)
 
     return imm_bin[0] + imm_bin[10:20] + imm_bin[9] + imm_bin[1:9] + registers[rd] + opcode 
 
@@ -344,40 +350,41 @@ def main_encoder(line):
             return encode_J_type(parts)
         case _:
             raise ValueError("Invalid instruction")
+        
+global pc # maintain a program counter, initially at line 1 
+pc=4
+label={} # a dictionary consisting of { label : pc relative label address }
 
-def main():
+# open files
+fin=open("input_file.txt","r")
+fout=open("output_file.txt","w")
 
-    # take file names from command line
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
+instr=fin.readline().strip()
 
-    # open files
-    fin = open(input_file, "r")
-    fout = open(output_file, "w")
+# while loop to record all label addresses
+while instr!="":     
+    if ":" in instr:
+        label[str(instr[:instr.index(":")])]=pc
+    pc+=4
+    instr=fin.readline().strip()
 
-    line_number = 1
+fin.seek(0) # take file cursor back to line 1
+instr=fin.readline().strip()
+pc=4 # set program counter back to line 1
 
-    for line in fin:
-        line = line.strip()
+while instr!="":
+    if ":" in instr:
+        instr=instr[instr.index(":")+1:].strip() # remove label name
+    try:
+        fout.write(main_encoder(instr)+"\n") # write binary equivalent in output file
+    except:
+        print("Error at line", pc//4)
+        fin.close()
+        fout.close()
+        break
+    pc+=4 
+    instr=fin.readline().strip()
 
-        # skip empty lines
-        if line == "":
-            continue
-
-        try:
-            binary = main_encoder(line)
-            fout.write(binary + "\n")
-
-        except:
-            print("Error at line", line_number)
-            fin.close()
-            fout.close()
-            return
-
-        line_number += 1
-
-    fin.close()
-    fout.close()
-
-
-main()
+# close files
+fin.close()
+fout.close()
